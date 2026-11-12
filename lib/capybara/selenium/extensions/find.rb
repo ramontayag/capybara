@@ -39,6 +39,11 @@ module Capybara
              ::Capybara::NotSupportedByDriverError
         # warn 'Unexpected Stale Element Error - skipping optimization'
         []
+      rescue ::Selenium::WebDriver::Error::UnknownError => e
+        raise unless es_context.browser.browser == :chrome &&
+                     e.message.include?('Node with given id does not belong to the document')
+
+        raise Capybara::RetryableQueryError, e.message, e.backtrace
       end
 
       def filter_by_text(elements, texts)
